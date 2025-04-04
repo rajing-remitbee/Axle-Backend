@@ -1,0 +1,16 @@
+@startuml "Backend Schema"
+
+!define TABLE(name, desc) class name as "<b>name</b>\ndesc" << (T,#FFFFFF) >>
+!define COL(name, type, desc) name : type #desc
+!define PK(name) <b>name</b> PK
+
+namespace axle {
+  TABLE(country_codes, "Country Code Information") {
+      PK(id) : int auto_increment
+      COL(name, varchar(255), "Country name")
+      COL(dialcode, varchar(10), "Dial code")
+      COL(countrycode, varchar(2), "Country ISO code")
+  }
+}
+
+@enduml
