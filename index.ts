@@ -6,12 +6,20 @@ import { schema } from "./src/graphql/schema";
 import { root } from "./src/graphql/resolvers";
 import graphqlPlayground from 'graphql-playground-middleware-express';
 import { closeConnection } from "./src/db/database";
+import { sequelize } from "./src/db/sequelize";
 
 dotenv.config(); //Dot Environment configuration
 const app = express() //Express App
 app.use(cors()) //Use Cross-Orgin Resource Sharing
 
 const PORT = process.env.PORT || 4000; //Port
+
+//Initialize Sequelize
+sequelize.authenticate().then(() => {
+    console.log('Database connection has been established successfully.');
+}).catch((err) => {
+    console.error('Unable to connect to the database:', err);
+});
 
 //Root Get Request
 app.get('/', (req, res) => {
