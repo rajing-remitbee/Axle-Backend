@@ -3,6 +3,7 @@
 !define TABLE(name, desc) class name as "<b>name</b>\ndesc" << (T,#FFFFFF) >>
 !define COL(name, type, desc) name : type #desc
 !define PK(name) <b>name</b> PK
+!define FK(name) <i>name</i> FK
 
 namespace axle {
   TABLE(country_codes, "Country Code Information") {
@@ -11,6 +12,41 @@ namespace axle {
       COL(dialcode, varchar(10), "Dial code")
       COL(countrycode, varchar(2), "Country ISO code")
   }
+
+  TABLE(users, "User Information") {
+      PK(id) : int auto_increment
+      COL(phone_number, varchar(20), "Unique phone number")
+      COL(email, varchar(255), "Unique email address")
+      COL(first_name, varchar(255), "First name")
+      COL(last_name, varchar(255), "Last name")
+      COL(terms_accepted, boolean, "Terms accepted")
+      COL(location_access_granted, boolean, "Location access granted")
+      COL(push_notifications_enabled, boolean, "Push notifications enabled")
+      COL(created_at, timestamp, "Creation timestamp")
+      COL(updated_at, timestamp, "Update timestamp")
+  }
+
+  TABLE(user_addresses, "User Addresses") {
+      PK(id) : int auto_increment
+      FK(user_id) : int #References users.id
+      COL(apt_suite_floor, varchar(255), "Apartment/Suite/Floor")
+      COL(business_building_name, varchar(255), "Business or building name")
+      COL(delivery_option, varchar(255), "Delivery option")
+      COL(label, varchar(255), "Address label")
+      COL(latitude, decimal(10, 8), "Latitude")
+      COL(longitude, decimal(11, 8), "Longitude")
+      COL(address_line1, varchar(255), "Address line 1")
+      COL(address_line2, varchar(255), "Address line 2")
+      COL(city, varchar(255), "City")
+      COL(state, varchar(255), "State")
+      COL(postal_code, varchar(20), "Postal code")
+      COL(country, varchar(255), "Country")
+      COL(is_default, boolean, "Default address")
+      COL(created_at, timestamp, "Creation timestamp")
+      COL(updated_at, timestamp, "Update timestamp")
+  }
+
+  users -- user_addresses : contains
 }
 
 @enduml

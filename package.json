@@ -14,7 +14,6 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
-    "@types/mysql": "^2.15.27",
     "@types/node": "^22.14.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
@@ -26,6 +25,7 @@
     "express": "^4.16.2",
     "graphql-http": "^1.22.4",
     "graphql-playground-middleware-express": "^1.7.23",
-    "mysql2": "^3.14.0"
+    "mysql2": "^3.14.0",
+    "sequelize": "^6.37.7"
   }
 }
