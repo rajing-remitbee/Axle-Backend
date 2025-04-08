@@ -41,6 +41,11 @@ export const schema = buildSchema(`
         countryCodes: [CountryCode!]!
     }
 
+    type OTPResponse {
+        otp: String!
+        token: String!
+    }
+
     type Mutation {
         createUser(
             phone_number: String!
@@ -68,5 +73,7 @@ export const schema = buildSchema(`
             country: String
             is_default: Boolean
         ): UserAddress
+
+        generateOTP(phone_number: String!): OTPResponse!
     }
 `);

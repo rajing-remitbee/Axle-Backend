@@ -1,13 +1,8 @@
-import * as dotenv from "dotenv"
-import { Sequelize, DataTypes } from "sequelize";
-
-dotenv.config() //Initialize Dot Environment
-
-//Populate Sequelize Object with Mysql configuration details
-const sequelize = new Sequelize(process.env.MYSQL_DATABASE_DATABASE || "axle", process.env.MYSQL_DATABASE_USER || 'root', process.env.MYSQL_DATABASE_PASSWORD || '', { host: process.env.MYSQL_DATABASE_HOST || 'localhost', dialect: 'mysql' });
+import { DataTypes } from "sequelize";
+import { sequelize } from "./sequelize";
 
 //Create Sequelize CountryCode Object
-const CountryCode = sequelize.define('CountryCode',
+export const CountryCode = sequelize.define('CountryCode',
     {
         name: { type: DataTypes.STRING, allowNull: false },
         dialcode: { type: DataTypes.STRING, allowNull: false },
@@ -19,7 +14,8 @@ const CountryCode = sequelize.define('CountryCode',
     }
 );
 
-const User = sequelize.define('User',
+//Create Sequelize User Object
+export const User = sequelize.define('User',
     {
         phone_number: { type: DataTypes.STRING, allowNull: false, unique: true },
         email: { type: DataTypes.STRING, unique: true },
@@ -34,8 +30,10 @@ const User = sequelize.define('User',
     }
 );
 
-const UserAddress = sequelize.define('UserAddress',
+//Create Sequelize UserAddress Object
+export const UserAddress = sequelize.define('UserAddress',
     {
+        user_id: { type: DataTypes.NUMBER },
         apt_suite_floor: { type: DataTypes.STRING },
         business_building_name: { type: DataTypes.STRING },
         delivery_option: { type: DataTypes.STRING },
@@ -57,5 +55,3 @@ const UserAddress = sequelize.define('UserAddress',
 
 User.hasMany(UserAddress, { foreignKey: 'user_id' });
 UserAddress.belongsTo(User, { foreignKey: 'user_id' });
-
-export { sequelize, CountryCode, User, UserAddress }

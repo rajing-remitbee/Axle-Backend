@@ -1,5 +1,8 @@
-import { CountryCode, User, UserAddress } from "../db/sequelize";
-import { UserAddressResolverObject, UserResolverObject } from "./resolverObjects";
+import { CountryCode, User, UserAddress } from "../db/sequelize/models";
+import { generateRandomOTP } from "../helpers/OtpGenerator";
+import { generateJWT } from "../helpers/TokenGenerator";
+import { OTP } from "../mongoose/mongoose";
+import { GenerateOTPResolverObject, UserAddressResolverObject, UserResolverObject } from "./resolverObjects";
 
 //Resolvers
 export const root = {
@@ -58,6 +61,24 @@ export const root = {
         } catch (error) {
             console.error('Error creating user address:', error);
             throw new Error('Failed to create user address');
+        }
+    },
+
+    generateOTP: async ({ phone_number }: GenerateOTPResolverObject) => {
+        try {
+            const otp = generateRandomOTP();
+            const tokenPayload = { phone_number, otp };
+            const token = generateJWT(tokenPayload);
+
+            const newOTP = new OTP({ phone_number, otp, token });
+            await newOTP.save();
+
+            console.log(`Generated OTP for ${phone_number}: ${otp}`);
+
+            return { otp, token };
+        } catch (error) {
+            console.error('Error generating OTP:', error);
+            throw new Error('Failed to generate OTP');
         }
     },
 };
