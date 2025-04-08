@@ -25,3 +25,7 @@ export interface UserAddressResolverObject {
     country: String,
     is_default: Boolean
 }
+
+export interface GenerateOTPResolverObject {
+    phone_number: String
+}
