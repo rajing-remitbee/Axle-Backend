@@ -46,6 +46,11 @@ export const schema = buildSchema(`
         token: String!
     }
 
+    type VerificationResult {
+        success: Boolean!
+        message: String!
+    }
+
     type Mutation {
         createUser(
             phone_number: String!
@@ -75,5 +80,7 @@ export const schema = buildSchema(`
         ): UserAddress
 
         generateOTP(phone_number: String!): OTPResponse!
+
+        verifyOTP(phone_number: String!, otp: String!, token: String!): VerificationResult!
     }
 `);

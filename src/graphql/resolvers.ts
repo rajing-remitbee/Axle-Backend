@@ -2,7 +2,8 @@ import { CountryCode, User, UserAddress } from "../db/sequelize/models";
 import { generateRandomOTP } from "../helpers/OtpGenerator";
 import { generateJWT } from "../helpers/TokenGenerator";
 import { OTP } from "../mongoose/mongoose";
-import { GenerateOTPResolverObject, UserAddressResolverObject, UserResolverObject } from "./resolverObjects";
+import jwt from 'jsonwebtoken';
+import { GenerateOTPResolverObject, UserAddressResolverObject, UserResolverObject, VerifyOTPResolverObject } from "./resolverObjects";
 
 //Resolvers
 export const root = {
@@ -64,8 +65,12 @@ export const root = {
         }
     },
 
+    //GenerateOTP Resolver
     generateOTP: async ({ phone_number }: GenerateOTPResolverObject) => {
         try {
+            // Delete any existing OTP for this phone number
+            await OTP.deleteMany({ phone_number });
+
             const otp = generateRandomOTP();
             const tokenPayload = { phone_number, otp };
             const token = generateJWT(tokenPayload);
@@ -79,6 +84,33 @@ export const root = {
         } catch (error) {
             console.error('Error generating OTP:', error);
             throw new Error('Failed to generate OTP');
+        }
+    },
+
+    //VerifyOTP Resolver
+    verifyOTP: async ({ phone_number, otp, token }: VerifyOTPResolverObject) => {
+        try {
+            // Find the OTP record in MongoDB
+            const otpRecord = await OTP.findOne({ phone_number, otp });
+            
+            if (!otpRecord) {
+                return { success: false, message: 'Invalid OTP!' };
+            }
+
+            // Verify the JWT
+            try {
+                jwt.verify(`${token}`, process.env.JWT_SECRET || '');
+            } catch (jwtError) {
+                return { success: false, message: 'Invalid or expired token.' };
+            }
+
+            // OTP and token are valid
+            await OTP.deleteOne({ _id: otpRecord._id });
+            return { success: true, message: 'OTP verified successfully.' };
+
+        } catch (error) {
+            console.error('Error verifying OTP:', error);
+            throw new Error('Failed to verify OTP');
         }
     },
 };
