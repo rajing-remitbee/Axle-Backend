@@ -29,3 +29,9 @@ export interface UserAddressResolverObject {
 export interface GenerateOTPResolverObject {
     phone_number: String
 }
+
+export interface VerifyOTPResolverObject {
+    phone_number: String,
+    otp: String,
+    token: String
+}
