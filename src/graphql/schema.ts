@@ -39,6 +39,7 @@ export const schema = buildSchema(`
 
     type Query {
         countryCodes: [CountryCode!]!
+        checkUserRegistration(phoneNumber: String!): UserRegistrationStatus!
     }
 
     type OTPResponse {
@@ -49,6 +50,13 @@ export const schema = buildSchema(`
     type VerificationResult {
         success: Boolean!
         message: String!
+    }
+
+    type UserRegistrationStatus {
+        userExists: Boolean!
+        personalDetailsComplete: Boolean!
+        addressDetailsComplete: Boolean!
+        user: User
     }
 
     type Mutation {
@@ -82,5 +90,16 @@ export const schema = buildSchema(`
         generateOTP(phone_number: String!): OTPResponse!
 
         verifyOTP(phone_number: String!, otp: String!, token: String!): VerificationResult!
+
+        updateUser(
+            id: Int!
+            phone_number: String
+            email: String
+            first_name: String
+            last_name: String
+            terms_accepted: Boolean
+            location_access_granted: Boolean
+            push_notifications_enabled: Boolean
+        ): User
     }
 `);

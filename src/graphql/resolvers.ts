@@ -3,7 +3,7 @@ import { generateRandomOTP } from "../helpers/OtpGenerator";
 import { generateJWT } from "../helpers/TokenGenerator";
 import { OTP } from "../mongoose/mongoose";
 import jwt from 'jsonwebtoken';
-import { GenerateOTPResolverObject, UserAddressResolverObject, UserResolverObject, VerifyOTPResolverObject } from "./resolverObjects";
+import { GenerateOTPResolverObject, UpdateUserResolverObject, UserAddressModel, UserAddressResolverObject, UserModel, UserRegistrationObject, UserResolverObject, VerifyOTPResolverObject } from "./resolverObjects";
 
 //Resolvers
 export const root = {
@@ -39,6 +39,32 @@ export const root = {
         }
     },
 
+    updateUser: async ({ id, phone_number, email, first_name, last_name, terms_accepted, location_access_granted, push_notifications_enabled }: UpdateUserResolverObject) => {
+        try {
+            const user = await User.findByPk(id) as UserModel; // Find the user by their primary key (id)
+    
+            if (!user) {
+                throw new Error('User not found'); // Handle the case where the user doesn't exist
+            }
+    
+            // Update the user's properties
+            if (phone_number !== undefined) user.phone_number = phone_number; // Only update if a new value is provided
+            if (email !== undefined) user.email = email;
+            if (first_name !== undefined) user.first_name = first_name;
+            if (last_name !== undefined) user.last_name = last_name;
+            if (terms_accepted !== undefined) user.terms_accepted = terms_accepted;
+            if (location_access_granted !== undefined) user.location_access_granted = location_access_granted;
+            if (push_notifications_enabled !== undefined) user.push_notifications_enabled = push_notifications_enabled;
+    
+            await user.save(); // Save the changes to the database
+    
+            return user; // Return the updated user
+        } catch (error) {
+            console.error('Error updating user:', error);
+            throw new Error('Failed to update user');
+        }
+    },
+
     //CreateAddress Resolver
     createUserAddress: async ({ user_id, apt_suite_floor, business_building_name, delivery_option, label, latitude, longitude, address_line1, address_line2, city, state, postal_code, country, is_default }: UserAddressResolverObject) => {
         try {
@@ -62,6 +88,38 @@ export const root = {
         } catch (error) {
             console.error('Error creating user address:', error);
             throw new Error('Failed to create user address');
+        }
+    },
+
+    //CheckUser Resolver
+    checkUserRegistration : async ({ phoneNumber }: UserRegistrationObject) => {
+        try {
+            const user = await User.findOne({ where: { phone_number: phoneNumber } }) as UserModel;
+            const userExists = !!user; // Convert user to boolean (true if exists, false if null)
+    
+            let personalDetailsComplete = false;
+            if (user) {
+                // Check if personal details are complete
+                personalDetailsComplete = !!(user.first_name && user.last_name && user.email);
+            }
+    
+            let addressDetailsComplete = false;
+            if (user) {
+                const address = await UserAddress.findOne({ where: { user_id: user.id } }) as UserAddressModel;
+                addressDetailsComplete = !!address; // True if an address exists
+            }
+
+            const isRegistrationComplete = userExists && personalDetailsComplete;
+    
+            return {
+                userExists,
+                personalDetailsComplete,
+                addressDetailsComplete,
+                user: isRegistrationComplete ? user : null
+            };
+        } catch (error) {
+            console.error('Error checking user registration:', error);
+            throw new Error('Failed to check user registration');
         }
     },
 
